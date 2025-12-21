@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
+import { getTranslations } from "../../utils/i18n";
 
 export async function getStaticPaths() {
   const novels = await getCollection("novels");
@@ -12,40 +13,41 @@ export async function getStaticPaths() {
 
 const { novel } = Astro.props;
 const { Content } = await render(novel);
+const t = getTranslations();
 ---
 
-<Layout title={`${novel.data.title} - ixi Novel`}>
+<Layout title={`${novel.data.title} - ${t.site.title}`}>
   <div
     class="max-w-prose mx-auto mb-4 flex flex-wrap gap-4 justify-end items-center text-sm"
   >
     <div class="flex items-center gap-2">
-      <span class="text-gray-500">背景:</span>
+      <span class="text-gray-500">{t.novel.background}</span>
       <button
         class="w-6 h-6 rounded-full border border-gray-300 bg-white shadow-sm hover:scale-110 transition-transform cursor-pointer"
         data-theme="white"
-        aria-label="白"></button>
+        aria-label={t.novel.white}></button>
       <button
         class="w-6 h-6 rounded-full border border-gray-300 bg-gray-100 shadow-sm hover:scale-110 transition-transform cursor-pointer"
         data-theme="gray"
-        aria-label="灰"></button>
+        aria-label={t.novel.gray}></button>
       <button
         class="w-6 h-6 rounded-full border border-gray-300 bg-[#fcfcda] shadow-sm hover:scale-110 transition-transform cursor-pointer"
         data-theme="yellow"
-        aria-label="黄"></button>
+        aria-label={t.novel.yellow}></button>
       <button
         class="w-6 h-6 rounded-full border border-gray-300 bg-gray-900 shadow-sm hover:scale-110 transition-transform cursor-pointer"
         data-theme="black"
-        aria-label="黒"></button>
+        aria-label={t.novel.black}></button>
     </div>
     <div class="flex items-center gap-2">
-      <span class="text-gray-500">文字:</span>
+      <span class="text-gray-500">{t.novel.font}</span>
       <button
         class="px-2 py-1 rounded border border-gray-300 bg-white text-gray-900 font-sans shadow-sm hover:bg-gray-50 transition-colors cursor-pointer"
-        data-font="sans">ゴシック</button
+        data-font="sans">{t.novel.gothic}</button
       >
       <button
         class="px-2 py-1 rounded border border-gray-300 bg-white text-gray-900 font-serif shadow-sm hover:bg-gray-50 transition-colors cursor-pointer"
-        data-font="serif">明朝</button
+        data-font="serif">{t.novel.mincho}</button
       >
     </div>
   </div>

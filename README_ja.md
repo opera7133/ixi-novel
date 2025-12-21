@@ -25,6 +25,15 @@ bun install
 bun run dev
 ```
 
+## 言語切替
+
+デフォルトは英語表示です。日本語で公開する場合は、`.env`の`LOCALE`を`ja`にしてください。
+
+`.env`:
+```
+LOCALE=ja
+```
+
 ## 小説の追加方法
 
 `src/content/novels/` ディレクトリにMarkdownファイル（`.md`）を追加します。

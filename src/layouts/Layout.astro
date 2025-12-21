@@ -1,15 +1,18 @@
 ---
 import "../styles/global.css";
+import { getTranslations } from "../utils/i18n";
 
 interface Props {
   title: string;
 }
 
 const { title } = Astro.props;
+const t = getTranslations();
+const lang = import.meta.env.LOCALE ?? "ja";
 ---
 
 <!doctype html>
-<html lang="ja">
+<html lang={lang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="description" content="Astro description" />
@@ -28,10 +31,12 @@ const { title } = Astro.props;
           href="/"
           class="text-xl font-bold text-sky-600 hover:text-sky-800 transition-colors"
         >
-          ixi Novel
+          {t.site.title}
         </a>
         <nav>
-          <a href="/" class="text-gray-600 hover:text-gray-900">ホーム</a>
+          <a href="/" class="text-gray-600 hover:text-gray-900"
+            >{t.layout.home}</a
+          >
         </nav>
       </div>
     </header>
@@ -42,10 +47,7 @@ const { title } = Astro.props;
       <div
         class="max-w-4xl mx-auto px-4 py-6 text-center text-gray-500 text-sm"
       >
-        <p>&copy; {new Date().getFullYear()} ixi Novel.</p>
-        <p>
-          このウェブサイトのコンテンツは、ほぼ全てAIによって生成されています。
-        </p>
+        <p>&copy; {new Date().getFullYear()} {t.site.title}</p>
       </div>
     </footer>
   </body>
