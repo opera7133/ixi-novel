@@ -30,7 +30,8 @@ async function syncNovels() {
     const response = await dbx.filesListFolder({ path: DROPBOX_FOLDER_PATH });
 
     for (const entry of response.result.entries) {
-      if (entry['.tag'] === 'file' && entry.name.endsWith('.md') && entry.name.startsWith('plot')) {
+      const ignoreList = ['INSTRUCTION.md', 'README.md', 'template.md'];
+      if (entry['.tag'] === 'file' && entry.name.endsWith('.md') && !ignoreList.includes(entry.name)) {
         console.log(`Downloading: ${entry.name}`);
 
         const fileData = await dbx.filesDownload({ path: entry.path_lower! });
