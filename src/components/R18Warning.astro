@@ -2,7 +2,9 @@
 import { getTranslations } from "../utils/i18n";
 
 const t = getTranslations();
-const r18Enabled = import.meta.env.R18_ENABLED === "true";
+const r18Enabled =
+  import.meta.env.R18_ENABLED === "true" ||
+  import.meta.env.R18_ENABLED === true;
 ---
 
 {
