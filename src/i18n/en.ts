@@ -22,8 +22,11 @@ export const en = {
     yellow: "Yellow",
     black: "Black",
     font: "Font:",
-    gothic: "Gothic",
+    gothic: "Sans-serif",
     mincho: "Serif",
+    about: "~",
+    minutes: "min",
+    characters: "characters",
   },
   r18: {
     warning: "Warning",

@@ -134,7 +134,8 @@ const { characterCount, readingTime } = calculateStats(novel.body);
               d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
             ></path>
           </svg>
-          {characterCount.toLocaleString()} 文字
+          {characterCount.toLocaleString()}
+          {t.novel.characters}
         </span>
         <span class="flex items-center gap-1">
           <svg
@@ -149,7 +150,9 @@ const { characterCount, readingTime } = calculateStats(novel.body);
               stroke-width="2"
               d="M12 8v4l3 2m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          約 {readingTime} 分
+          {t.novel.about}
+          {readingTime}
+          {t.novel.minutes}
         </span>
       </div>
     </header>

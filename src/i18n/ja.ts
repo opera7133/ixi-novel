@@ -24,6 +24,9 @@ export const ja = {
     font: "文字:",
     gothic: "ゴシック",
     mincho: "明朝",
+    about: "約",
+    minutes: "分",
+    characters: "文字",
   },
   r18: {
     warning: "注意",
