@@ -89,13 +89,14 @@ const { Content } = await render(novel);
     const headings = Array.from(content.querySelectorAll("h1, h2, h3")); // Check multiple levels just in case
 
     for (const heading of headings) {
-      if (heading.textContent?.trim() === "あらすじ") {
+      const summaryTextCandidates = ["あらすじ", "Summary", "Synopsis", "概要"];
+      if (summaryTextCandidates.includes(heading.textContent?.trim() || "")) {
         const details = document.createElement("details");
         details.className =
           "mb-8 p-4 bg-gray-50 rounded-lg border border-gray-200";
 
         const summary = document.createElement("summary");
-        summary.textContent = "あらすじ";
+        summary.textContent = heading.textContent?.trim() || "あらすじ";
         summary.className =
           "cursor-pointer font-bold text-lg text-gray-800 hover:text-sky-600 transition-colors";
 
