@@ -16,6 +16,7 @@ export default defineConfig({
       DROPBOX_ACCESS_TOKEN: envField.string({ context: "server", access: "secret" }),
       DROPBOX_FOLDER_PATH: envField.string({ context: "server", access: "secret" }),
       LOCALE: envField.string({ context: "client", access: "public", default: "en" }),
+      R18_ENABLED: envField.boolean({ context: "client", access: "public", default: false }),
     }
   }
 });

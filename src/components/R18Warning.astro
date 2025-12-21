@@ -1,0 +1,62 @@
+---
+import { getTranslations } from "../utils/i18n";
+
+const t = getTranslations();
+const r18Enabled = import.meta.env.R18_ENABLED === "true";
+---
+
+{
+  r18Enabled && (
+    <div
+      id="r18-warning-modal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden"
+    >
+      <div class="bg-white rounded-lg shadow-lg p-8 max-w-md mx-4">
+        <h2 class="text-2xl font-bold text-red-600 mb-4">{t.r18.warning}</h2>
+        <p class="text-gray-700 mb-6">{t.r18.content}</p>
+        <div class="flex gap-4">
+          <button
+            id="r18-decline-btn"
+            class="flex-1 px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition-colors"
+          >
+            {t.r18.decline}
+          </button>
+          <button
+            id="r18-confirm-btn"
+            class="flex-1 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+          >
+            {t.r18.confirmation}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<script is:inline define:vars={{ r18Enabled }}>
+  if (r18Enabled) {
+    // Check if user has already agreed to R18 warning
+    const hasAgreed = localStorage.getItem("r18-agreed");
+    const warningModal = document.getElementById("r18-warning-modal");
+
+    if (!hasAgreed && warningModal) {
+      // Show warning modal to first-time visitors
+      warningModal.classList.remove("hidden");
+
+      // Confirm button
+      document
+        .getElementById("r18-confirm-btn")
+        ?.addEventListener("click", () => {
+          localStorage.setItem("r18-agreed", "true");
+          warningModal.classList.add("hidden");
+        });
+
+      // Decline button - redirect to external site
+      document
+        .getElementById("r18-decline-btn")
+        ?.addEventListener("click", () => {
+          window.location.href = "https://www.google.com";
+        });
+    }
+  }
+</script>

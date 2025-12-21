@@ -25,4 +25,10 @@ export const ja = {
     gothic: "ゴシック",
     mincho: "明朝",
   },
+  r18: {
+    warning: "注意",
+    content: "このサイトはR18コンテンツを含みます",
+    confirmation: "私は18歳以上です",
+    decline: "同意しません",
+  },
 };

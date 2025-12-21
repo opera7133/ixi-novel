@@ -25,4 +25,10 @@ export const en = {
     gothic: "Gothic",
     mincho: "Serif",
   },
+  r18: {
+    warning: "Warning",
+    content: "This site contains R18 content",
+    confirmation: "I am 18 years or older",
+    decline: "I do not agree",
+  },
 };
