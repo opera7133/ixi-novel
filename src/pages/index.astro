@@ -189,10 +189,20 @@ const sortedNovels = novels.sort((a, b) => {
 
   tagButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      // Update active state
-      updateActiveTagButton(btn);
+      const clickedTag = btn.getAttribute("data-tag") || "all";
 
-      currentTag = btn.getAttribute("data-tag") || "all";
+      // If clicking the same tag that's already selected (and it's not "all"), go back to "all"
+      if (currentTag === clickedTag && currentTag !== "all") {
+        currentTag = "all";
+        const allBtn = document.querySelector('.tag-filter[data-tag="all"]');
+        if (allBtn) {
+          updateActiveTagButton(allBtn);
+        }
+      } else {
+        currentTag = clickedTag;
+        updateActiveTagButton(btn);
+      }
+
       updateDisplay();
 
       // Update URL without reloading
