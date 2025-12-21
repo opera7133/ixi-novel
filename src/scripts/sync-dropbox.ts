@@ -1,0 +1,70 @@
+import { Dropbox } from 'dropbox';
+import fs from 'fs';
+import path from 'path';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
+
+const ACCESS_TOKEN = process.env.DROPBOX_ACCESS_TOKEN;
+const DROPBOX_FOLDER_PATH = process.env.DROPBOX_FOLDER_PATH || '/novels';
+const LOCAL_CONTENT_PATH = path.join(process.cwd(), 'src/content/novels');
+
+if (!ACCESS_TOKEN) {
+  console.error('Error: DROPBOX_ACCESS_TOKEN is not defined in .env file');
+  process.exit(1);
+}
+
+const dbx = new Dropbox({ accessToken: ACCESS_TOKEN });
+
+async function syncNovels() {
+  try {
+    console.log(`Syncing from Dropbox folder: ${DROPBOX_FOLDER_PATH}`);
+
+    // Ensure local directory exists
+    if (!fs.existsSync(LOCAL_CONTENT_PATH)) {
+      fs.mkdirSync(LOCAL_CONTENT_PATH, { recursive: true });
+    }
+
+    // List files in the Dropbox folder
+    const response = await dbx.filesListFolder({ path: DROPBOX_FOLDER_PATH });
+
+    for (const entry of response.result.entries) {
+      if (entry['.tag'] === 'file' && entry.name.endsWith('.md') && entry.name.startsWith('plot')) {
+        console.log(`Downloading: ${entry.name}`);
+
+        const fileData = await dbx.filesDownload({ path: entry.path_lower! });
+
+        // The file data is in (fileData.result as any).fileBinary
+        // However, the SDK types might not expose it directly depending on version,
+        // but usually it's returned as a blob or buffer in the result.
+        // In Node.js environment with this SDK, the result usually contains the file data.
+
+        const buffer = (fileData.result as any).fileBinary;
+
+        if (buffer) {
+          const localFilePath = path.join(LOCAL_CONTENT_PATH, entry.name);
+
+          // Remove instruction text
+          let content = buffer.toString('utf-8');
+          content = content.replace(/INSTRUCTION\.mdに沿って執筆してください。/g, '');
+
+          fs.writeFileSync(localFilePath, content);
+          console.log(`Saved to: ${localFilePath}`);
+        } else {
+            console.warn(`Warning: No data found for ${entry.name}`);
+        }
+      }
+    }
+
+    console.log('Sync completed successfully.');
+
+  } catch (error: any) {
+    console.error('Error syncing files:', error);
+    if (error.error) {
+        console.error('Dropbox API Error:', JSON.stringify(error.error, null, 2));
+    }
+  }
+}
+
+syncNovels();

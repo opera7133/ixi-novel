@@ -1,16 +1,232 @@
 ---
+import { getCollection } from "astro:content";
+import Layout from "../layouts/Layout.astro";
 
+const novels = await getCollection("novels");
+
+// Calculate tag counts
+const tagCounts = novels
+  .flatMap((novel) => novel.data.tags || [])
+  .reduce(
+    (acc, tag) => {
+      acc[tag] = (acc[tag] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
+const allTags = Object.keys(tagCounts).sort();
+
+// Sort novels by ID initially (desc)
+const sortedNovels = novels.sort((a, b) => {
+  const idA = a.data.id;
+  const idB = b.data.id;
+  const numA = Number(idA);
+  const numB = Number(idB);
+
+  if (!isNaN(numA) && !isNaN(numB)) {
+    return numB - numA;
+  }
+  return String(idB).localeCompare(String(idA));
+});
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="一覧 - ixi Novel">
+  <div class="mb-8 space-y-6">
+    <div class="bg-white p-6 rounded-lg shadow-sm">
+      <h2 class="text-lg font-semibold mb-4">検索・並び替え</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Sort Control -->
+        <div>
+          <label
+            for="sortOrder"
+            class="block text-sm font-medium text-gray-700 mb-2"
+            >並び替え (ID順)</label
+          >
+          <select
+            id="sortOrder"
+            class="w-full border-gray-300 rounded-md shadow-sm focus:border-sky-500 focus:ring-sky-500 border p-2"
+          >
+            <option value="desc" selected>降順 (大きい順)</option>
+            <option value="asc">昇順 (小さい順)</option>
+          </select>
+        </div>
+
+        <!-- Tag Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >タグで絞り込み</label
+          >
+          <div class="flex flex-wrap gap-2" id="tagContainer">
+            <button
+              class="tag-filter active bg-sky-600 text-white px-3 py-1 rounded-full text-sm transition-colors cursor-pointer"
+              data-tag="all"
+            >
+              全て ({novels.length})
+            </button>
+            {
+              allTags.map((tag) => (
+                <button
+                  class="tag-filter bg-gray-200 text-gray-700 hover:bg-gray-300 px-3 py-1 rounded-full text-sm transition-colors cursor-pointer"
+                  data-tag={tag}
+                >
+                  #{tag} ({tagCounts[tag]})
+                </button>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="novelList" class="grid gap-4">
+    {
+      sortedNovels.map((novel) => (
+        <a
+          href={`/novels/${novel.data.id}`}
+          class="novel-card block bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-transparent hover:border-sky-100"
+          data-id={novel.data.id}
+          data-tags={JSON.stringify(novel.data.tags || [])}
+        >
+          <div class="flex justify-between items-start gap-3">
+            <h2 class="text-xl font-bold text-gray-900 mb-2">
+              {novel.data.title}
+            </h2>
+            <span class="text-xs shrink-0 font-mono text-gray-400 bg-gray-50 px-2 py-1 rounded">
+              ID: {novel.data.id}
+            </span>
+          </div>
+          {novel.data.tags && novel.data.tags.length > 0 && (
+            <div class="flex flex-wrap gap-2 mt-2">
+              {novel.data.tags.map((tag) => (
+                <span class="text-xs bg-sky-50 text-sky-700 px-2 py-1 rounded">
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </a>
+      ))
+    }
+  </div>
+
+  <div id="noResults" class="hidden text-center py-12 text-gray-500">
+    条件に一致する小説が見つかりませんでした。
+  </div>
+</Layout>
+
+<script>
+  // Client-side filtering and sorting logic
+  const sortSelect = document.getElementById("sortOrder") as HTMLSelectElement;
+  const tagButtons = document.querySelectorAll(".tag-filter");
+  const novelList = document.getElementById("novelList");
+  const noResults = document.getElementById("noResults");
+
+  let currentSort = "desc";
+  let currentTag = "all";
+
+  function updateDisplay() {
+    const cards = Array.from(
+      document.querySelectorAll(".novel-card"),
+    ) as HTMLElement[];
+    let visibleCount = 0;
+
+    // Filter
+    const filteredCards = cards.filter((card) => {
+      const tags = JSON.parse(card.dataset.tags || "[]");
+      const matchesTag = currentTag === "all" || tags.includes(currentTag);
+
+      if (matchesTag) {
+        card.classList.remove("hidden");
+        visibleCount++;
+        return true;
+      } else {
+        card.classList.add("hidden");
+        return false;
+      }
+    });
+
+    // Sort (only visible ones need sorting visually, but we can re-append all)
+    // Actually, we should sort the DOM elements based on the filtered set + hidden ones?
+    // Or just sort all of them and let the hidden class do the work.
+
+    const sortedCards = cards.sort((a, b) => {
+      const idA = a.dataset.id || "";
+      const idB = b.dataset.id || "";
+      const numA = Number(idA);
+      const numB = Number(idB);
+
+      let comparison = 0;
+      if (!isNaN(numA) && !isNaN(numB)) {
+        comparison = numA - numB;
+      } else {
+        comparison = idA.localeCompare(idB);
+      }
+
+      return currentSort === "asc" ? comparison : -comparison;
+    });
+
+    // Re-append to DOM
+    sortedCards.forEach((card) => novelList?.appendChild(card));
+
+    // Show/Hide no results message
+    if (visibleCount === 0) {
+      noResults?.classList.remove("hidden");
+    } else {
+      noResults?.classList.add("hidden");
+    }
+  }
+
+  // Event Listeners
+  sortSelect?.addEventListener("change", (e) => {
+    currentSort = (e.target as HTMLSelectElement).value;
+    updateDisplay();
+  });
+
+  tagButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      // Update active state
+      updateActiveTagButton(btn);
+
+      currentTag = btn.getAttribute("data-tag") || "all";
+      updateDisplay();
+
+      // Update URL without reloading
+      const url = new URL(window.location.href);
+      if (currentTag === "all") {
+        url.searchParams.delete("tag");
+      } else {
+        url.searchParams.set("tag", currentTag);
+      }
+      window.history.pushState({}, "", url);
+    });
+  });
+
+  function updateActiveTagButton(activeBtn: Element) {
+    tagButtons.forEach((b) => {
+      b.classList.remove("bg-sky-600", "text-white");
+      b.classList.add("bg-gray-200", "text-gray-700");
+    });
+    activeBtn.classList.remove("bg-gray-200", "text-gray-700");
+    activeBtn.classList.add("bg-sky-600", "text-white");
+  }
+
+  // Initialize from URL param
+  window.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tagParam = urlParams.get("tag");
+
+    if (tagParam) {
+      const targetBtn = document.querySelector(
+        `.tag-filter[data-tag="${tagParam}"]`,
+      );
+      if (targetBtn) {
+        currentTag = tagParam;
+        updateActiveTagButton(targetBtn);
+        updateDisplay();
+      }
+    }
+  });
+</script>

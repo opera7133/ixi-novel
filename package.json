@@ -2,13 +2,24 @@
   "name": "ixi-novel",
   "type": "module",
   "version": "0.0.1",
+  "license": "MIT",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "sync": "bun run src/scripts/sync-dropbox.ts"
   },
   "dependencies": {
-    "astro": "^5.16.6"
+    "@tailwindcss/vite": "^4.1.18",
+    "astro": "^5.16.6",
+    "dotenv": "^17.2.3",
+    "dropbox": "^10.34.0",
+    "tailwindcss": "^4.1.18"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.11",
+    "@tailwindcss/typography": "^0.5.19",
+    "remark-breaks": "^4.0.0"
   }
 }

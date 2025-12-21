@@ -1,0 +1,52 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title}</title>
+  </head>
+  <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm sticky top-0 z-10">
+      <div
+        class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center"
+      >
+        <a
+          href="/"
+          class="text-xl font-bold text-sky-600 hover:text-sky-800 transition-colors"
+        >
+          ixi Novel
+        </a>
+        <nav>
+          <a href="/" class="text-gray-600 hover:text-gray-900">ホーム</a>
+        </nav>
+      </div>
+    </header>
+    <main class="grow max-w-4xl mx-auto px-4 py-8 w-full">
+      <slot />
+    </main>
+    <footer class="bg-white border-t mt-auto border-gray-200">
+      <div
+        class="max-w-4xl mx-auto px-4 py-6 text-center text-gray-500 text-sm"
+      >
+        <p>&copy; {new Date().getFullYear()} ixi Novel.</p>
+        <p>
+          このウェブサイトのコンテンツは、ほぼ全てAIによって生成されています。
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

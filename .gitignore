@@ -22,3 +22,7 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# sync script output
+src/content/novels/*.md
+!src/content/novels/sample.md
