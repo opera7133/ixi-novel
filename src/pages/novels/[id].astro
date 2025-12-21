@@ -50,6 +50,13 @@ const t = getTranslations();
         data-font="serif">{t.novel.mincho}</button
       >
     </div>
+    <button
+      id="break-toggle"
+      class="px-2 py-1 rounded border border-gray-300 bg-white text-gray-900 shadow-sm hover:bg-gray-50 transition-colors cursor-pointer text-sm"
+      aria-label="折り返し設定"
+    >
+      折り返し
+    </button>
   </div>
 
   <article
@@ -78,7 +85,7 @@ const t = getTranslations();
         }
       </div>
     </header>
-    <div class="novel-content break-auto">
+    <div class="novel-content">
       <Content />
     </div>
   </article>
@@ -137,12 +144,14 @@ const t = getTranslations();
     }
   }
 
-  // Theme and Font Settings
+  // Theme, Font, and Break Settings
   const article = document.getElementById("novel-article");
+  const novelContent = document.querySelector(".novel-content");
   const themeBtns: NodeListOf<HTMLElement> =
     document.querySelectorAll("[data-theme]");
   const fontBtns: NodeListOf<HTMLElement> =
     document.querySelectorAll("[data-font]");
+  const breakToggleBtn = document.getElementById("break-toggle");
 
   const themes: Record<string, string[]> = {
     white: ["bg-white", "text-gray-900"],
@@ -203,6 +212,45 @@ const t = getTranslations();
     });
   }
 
+  function applyBreak(breakEnabled?: boolean) {
+    if (breakEnabled === undefined) return;
+    if (!novelContent) return;
+
+    if (breakEnabled) {
+      novelContent.classList.add("break-auto");
+    } else {
+      novelContent.classList.remove("break-auto");
+    }
+    localStorage.setItem("novel-break", String(breakEnabled));
+
+    // Update active state for button
+    if (breakToggleBtn) {
+      if (breakEnabled) {
+        breakToggleBtn.classList.add(
+          "bg-sky-50",
+          "border-sky-500",
+          "text-sky-700",
+        );
+        breakToggleBtn.classList.remove(
+          "bg-white",
+          "border-gray-300",
+          "text-gray-900",
+        );
+      } else {
+        breakToggleBtn.classList.remove(
+          "bg-sky-50",
+          "border-sky-500",
+          "text-sky-700",
+        );
+        breakToggleBtn.classList.add(
+          "bg-white",
+          "border-gray-300",
+          "text-gray-900",
+        );
+      }
+    }
+  }
+
   // Event Listeners
   themeBtns.forEach((btn) => {
     btn.addEventListener("click", () => applyTheme(btn.dataset.theme));
@@ -212,10 +260,20 @@ const t = getTranslations();
     btn.addEventListener("click", () => applyFont(btn.dataset.font));
   });
 
+  if (breakToggleBtn) {
+    breakToggleBtn.addEventListener("click", () => {
+      const currentBreak =
+        novelContent?.classList.contains("break-auto") ?? false;
+      applyBreak(!currentBreak);
+    });
+  }
+
   // Initialize
   const savedTheme = localStorage.getItem("novel-theme") || "white";
   const savedFont = localStorage.getItem("novel-font") || "sans";
+  const savedBreak = localStorage.getItem("novel-break") !== "false"; // Default to true
 
   applyTheme(savedTheme);
   applyFont(savedFont);
+  applyBreak(savedBreak);
 </script>
