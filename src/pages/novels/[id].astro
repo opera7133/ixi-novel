@@ -11,9 +11,44 @@ export async function getStaticPaths() {
   }));
 }
 
+function calculateStats(body?: string) {
+  if (!body) {
+    return { characterCount: 0, readingTime: 0 };
+  }
+  // "# 本文" から最後までの内容を抽出（次の # があればそこまで）
+  const mainTextMatch = body.match(/^# 本文\n([\s\S]*)$/m);
+
+  if (!mainTextMatch) {
+    return { characterCount: 0, readingTime: 0 };
+  }
+
+  let mainText = mainTextMatch[1];
+
+  // 次の "# " で始まるセクションがあれば、そこまで抽出
+  const nextSectionMatch = mainText.match(/^([\s\S]*?)\n^# /m);
+  if (nextSectionMatch) {
+    mainText = nextSectionMatch[1];
+  }
+
+  // 見出しを除外（行頭の # で始まる行）
+  const withoutHeadings = mainText
+    .split("\n")
+    .filter((line) => !line.trim().startsWith("#"))
+    .join("\n");
+
+  // 全ての改行、スペースを除いた文字数を計算
+  const characterCount = withoutHeadings.replace(/\n|\s/g, "").length;
+
+  // 読み終わるまでの時間を計算（1分間に400文字が目安）
+  const readingTime = Math.ceil(characterCount / 500);
+
+  return { characterCount, readingTime };
+}
+
 const { novel } = Astro.props;
 const { Content } = await render(novel);
 const t = getTranslations();
+const { characterCount, readingTime } = calculateStats(novel.body);
 ---
 
 <Layout title={`${novel.data.title} - ${t.site.title}`}>
@@ -65,7 +100,7 @@ const t = getTranslations();
   >
     <header class="mb-8 border-b pb-4">
       <h1 class="text-3xl font-bold mb-2">{novel.data.title}</h1>
-      <div class="flex flex-wrap gap-2 text-sm text-gray-600">
+      <div class="flex flex-wrap gap-2 text-sm text-gray-600 mb-3">
         <span class="font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded"
           >ID: {novel.data.id}</span
         >
@@ -83,6 +118,39 @@ const t = getTranslations();
             </div>
           )
         }
+      </div>
+      <div class="flex flex-wrap gap-4 text-sm text-gray-500">
+        <span class="flex items-center gap-1">
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            ></path>
+          </svg>
+          {characterCount.toLocaleString()} 文字
+        </span>
+        <span class="flex items-center gap-1">
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4l3 2m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          約 {readingTime} 分
+        </span>
       </div>
     </header>
     <div class="novel-content">
