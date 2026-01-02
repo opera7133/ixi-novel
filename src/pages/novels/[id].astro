@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
+import R18Warning from "../../components/R18Warning.astro";
 import { getTranslations } from "../../utils/i18n";
 
 export async function getStaticPaths() {
@@ -52,6 +53,7 @@ const { characterCount, readingTime } = calculateStats(novel.body);
 ---
 
 <Layout title={`${novel.data.title} - ${t.site.title}`}>
+  <R18Warning />
   <div
     class="max-w-prose mx-auto mb-4 flex flex-wrap gap-4 justify-end items-center text-sm"
   >

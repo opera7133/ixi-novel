@@ -51,6 +51,7 @@ LOCALE=ja
 id: 1
 title: 小説のタイトル
 tags: ["ファンタジー", "短編"]
+r18: false
 ---
 
 # あらすじ
@@ -73,7 +74,7 @@ tags: ["ファンタジー", "短編"]
 
 DropboxにあるMarkdownファイルを同期して取り込むことができます。
 
-1. `.env` ファイルを作成し、Dropboxのアクセストークンを設定します。
+1. `.env` ファイルを作成し、DropboxのApp IDとApp Secretを設定します。
 
 ```bash
 cp .env.example .env
@@ -81,11 +82,19 @@ cp .env.example .env
 
 `.env`:
 ```
-DROPBOX_ACCESS_TOKEN=your_access_token_here
+DROPBOX_CLIENT_ID=your_dropbox_client_id
+DROPBOX_CLIENT_SECRET=your_dropbox_client_secret
+DROPBOX_REDIRECT_URI=http://localhost:8080/callback
 DROPBOX_FOLDER_PATH=/novels
 ```
 
-2. 同期スクリプトを実行します。
+2. Refresh Tokenを取得します。
+
+```bash
+bun run get-token
+```
+
+3. 同期スクリプトを実行します。
 
 ```bash
 bun run sync

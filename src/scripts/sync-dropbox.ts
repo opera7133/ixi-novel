@@ -6,16 +6,33 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
+const CLIENT_ID = process.env.DROPBOX_CLIENT_ID;
+const CLIENT_SECRET = process.env.DROPBOX_CLIENT_SECRET;
+const REFRESH_TOKEN = process.env.DROPBOX_REFRESH_TOKEN;
 const ACCESS_TOKEN = process.env.DROPBOX_ACCESS_TOKEN;
 const DROPBOX_FOLDER_PATH = process.env.DROPBOX_FOLDER_PATH || '/novels';
 const LOCAL_CONTENT_PATH = path.join(process.cwd(), 'src/content/novels');
 
-if (!ACCESS_TOKEN) {
-  console.error('Error: DROPBOX_ACCESS_TOKEN is not defined in .env file');
+if (!REFRESH_TOKEN && !ACCESS_TOKEN) {
+  console.error('Error: DROPBOX_REFRESH_TOKEN or DROPBOX_ACCESS_TOKEN must be defined in .env file');
   process.exit(1);
 }
 
-const dbx = new Dropbox({ accessToken: ACCESS_TOKEN });
+if (REFRESH_TOKEN && !CLIENT_ID) {
+  console.error('Error: DROPBOX_CLIENT_ID must be defined when using DROPBOX_REFRESH_TOKEN');
+  process.exit(1);
+}
+
+// Initialize Dropbox client
+let dbx: Dropbox;
+if (REFRESH_TOKEN && CLIENT_ID && CLIENT_SECRET) {
+  dbx = new Dropbox({ clientId: CLIENT_ID, clientSecret: CLIENT_SECRET, refreshToken: REFRESH_TOKEN });
+} else if (ACCESS_TOKEN) {
+  dbx = new Dropbox({ accessToken: ACCESS_TOKEN });
+} else {
+  console.error('Error: Unable to initialize Dropbox client');
+  process.exit(1);
+}
 
 async function syncNovels() {
   try {

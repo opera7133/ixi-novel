@@ -10,6 +10,7 @@ const novels = defineCollection({
     id: z.union([z.string(), z.number()]).transform(String),
     title: z.string(),
     tags: z.array(z.string()).optional(),
+    r18: z.boolean().default(false),
   }),
 });
 

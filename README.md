@@ -42,6 +42,7 @@ Please write Frontmatter at the beginning of the file.
 id: 1
 title: Novel Title
 tags: ["Fantasy", "Short Story"]
+r18: false
 ---
 
 # Synopsis
@@ -64,7 +65,7 @@ The story begins here...
 
 You can sync and import Markdown files from Dropbox.
 
-1. Create a `.env` file and set your Dropbox access token.
+1. Create a `.env` file and set your Dropbox App ID and App Secret.
 
 ```bash
 cp .env.example .env
@@ -72,11 +73,19 @@ cp .env.example .env
 
 `.env`:
 ```
-DROPBOX_ACCESS_TOKEN=your_access_token_here
+DROPBOX_CLIENT_ID=your_dropbox_client_id
+DROPBOX_CLIENT_SECRET=your_dropbox_client_secret
+DROPBOX_REDIRECT_URI=http://localhost:8080/callback
 DROPBOX_FOLDER_PATH=/novels
 ```
 
-2. Run the sync script.
+2. Get Refresh Token.
+
+```bash
+bun run get-token
+```
+
+3. Run the sync script.
 
 ```bash
 bun run sync

@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "sync": "bun run src/scripts/sync-dropbox.ts"
+    "sync": "bun run src/scripts/sync-dropbox.ts",
+    "get-token": "bun run src/scripts/get-dropbox-token.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",

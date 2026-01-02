@@ -1,7 +1,6 @@
 ---
 import "../styles/global.css";
 import { getTranslations } from "../utils/i18n";
-import R18Warning from "../components/R18Warning.astro";
 
 interface Props {
   title: string;
@@ -24,7 +23,6 @@ const lang = import.meta.env.LOCALE ?? "ja";
     <title>{title}</title>
   </head>
   <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
-    <R18Warning />
     <header class="bg-white shadow-sm sticky top-0 z-10">
       <div
         class="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center"
