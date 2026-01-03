@@ -102,13 +102,20 @@ const { characterCount, readingTime } = calculateStats(novel.body);
   >
     <header class="mb-8 border-b pb-4">
       <h1 class="text-3xl font-bold mb-2">{novel.data.title}</h1>
-      <div class="flex flex-wrap gap-2 text-sm text-gray-600 mb-3">
+      <div class="flex flex-wrap gap-2 text-sm text-gray-600 mb-3 items-center">
         <span class="font-mono text-gray-700 bg-gray-100 px-2 py-1 rounded"
           >ID: {novel.data.id}</span
         >
         {
+          novel.data.r18 && (
+            <span class="font-bold text-red-700 bg-red-100 px-2 py-1 rounded">
+              R18
+            </span>
+          )
+        }
+        {
           novel.data.tags && novel.data.tags.length > 0 && (
-            <div class="flex gap-2">
+            <div class="flex flex-wrap gap-2">
               {novel.data.tags.map((tag) => (
                 <a
                   href={`/?tag=${encodeURIComponent(tag)}`}

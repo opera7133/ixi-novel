@@ -100,15 +100,22 @@ const sortedNovels = novels.sort((a, b) => {
               ID: {novel.data.id}
             </span>
           </div>
-          {novel.data.tags && novel.data.tags.length > 0 && (
-            <div class="flex flex-wrap gap-2 mt-2">
-              {novel.data.tags.map((tag) => (
-                <span class="text-xs bg-sky-50 text-sky-700 px-2 py-1 rounded">
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
+          <div class="flex flex-wrap gap-2 mt-2 items-center">
+            {novel.data.r18 && (
+              <span class="text-xs font-bold bg-red-100 text-red-700 px-2 py-1 rounded">
+                R18
+              </span>
+            )}
+            {novel.data.tags && novel.data.tags.length > 0 && (
+              <div class="flex flex-wrap gap-2">
+                {novel.data.tags.map((tag) => (
+                  <span class="text-xs bg-sky-50 text-sky-700 px-2 py-1 rounded">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
         </a>
       ))
     }
