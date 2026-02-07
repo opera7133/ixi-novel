@@ -50,6 +50,7 @@ LOCALE=ja
 ---
 id: 1
 title: 小説のタイトル
+description: 小説の説明
 tags: ["ファンタジー", "短編"]
 r18: false
 ---

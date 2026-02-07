@@ -41,6 +41,7 @@ Please write Frontmatter at the beginning of the file.
 ---
 id: 1
 title: Novel Title
+description: Novel Description
 tags: ["Fantasy", "Short Story"]
 r18: false
 ---

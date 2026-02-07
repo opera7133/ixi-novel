@@ -9,6 +9,7 @@ const novels = defineCollection({
   schema: z.object({
     id: z.union([z.string(), z.number()]).transform(String),
     title: z.string(),
+    description: z.string().optional(),
     tags: z.array(z.string()).optional(),
     r18: z.boolean().default(false),
   }),
