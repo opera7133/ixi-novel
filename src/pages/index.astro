@@ -17,7 +17,9 @@ const tagCounts = novels
     {} as Record<string, number>,
   );
 
-const allTags = Object.keys(tagCounts).sort();
+const allTags = Object.keys(tagCounts).sort(
+  (a, b) => tagCounts[b] - tagCounts[a],
+);
 
 // Sort novels by ID initially (desc)
 const sortedNovels = novels.sort((a, b) => {
