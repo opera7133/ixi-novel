@@ -170,7 +170,32 @@ const { characterCount, readingTime } = calculateStats(novel.body);
       <Content />
     </div>
   </article>
+  <div
+    id="custom-scrollbar"
+    class="fixed top-0 right-1 w-4 z-50 opacity-0 transition-opacity duration-300 md:hidden h-full touch-none"
+    aria-hidden="true"
+  >
+    <div
+      id="custom-scrollbar-thumb"
+      class="absolute right-0 w-full bg-gray-500/80 rounded-full shadow-sm backdrop-blur-sm cursor-grab active:cursor-grabbing"
+      style="min-height: 40px;"
+    >
+    </div>
+  </div>
 </Layout>
+
+<style>
+  @media (max-width: 768px) {
+    /* モバイルでのネイティブスクロールバーを非表示にする */
+    :global(body::-webkit-scrollbar) {
+      display: none;
+    }
+    :global(body) {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  }
+</style>
 
 <script>
   // Find the "あらすじ" heading and wrap it and following content in a details element
@@ -349,6 +374,139 @@ const { characterCount, readingTime } = calculateStats(novel.body);
     });
   }
 
+  // Scrollbar Logic
+  const customScrollbar = document.getElementById("custom-scrollbar");
+  const scrollbarThumb = document.getElementById("custom-scrollbar-thumb");
+  let scrollTimeout: number | undefined;
+  let isDragging = false;
+  let startY = 0;
+  let startScrollTop = 0;
+  let startThumbTop = 0;
+
+  function updateScrollbar() {
+    if (!customScrollbar || !scrollbarThumb) return;
+
+    // Check if we are on a small screen (matching the CSS md:hidden)
+    if (window.innerWidth >= 768) {
+      customScrollbar.style.display = "none";
+      return;
+    } else {
+      customScrollbar.style.display = "block";
+    }
+
+    const docHeight = document.documentElement.scrollHeight;
+    const winHeight = window.innerHeight;
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+    // Show scrollbar
+    customScrollbar.classList.remove("opacity-0");
+
+    // Calculate thumb height and position
+    // Handle the case where content is smaller than viewport
+    if (docHeight <= winHeight) {
+      customScrollbar.classList.add("opacity-0");
+      return;
+    }
+
+    // Skip position update if dragging to avoid jitter
+    if (!isDragging) {
+      const scrollPercent = scrollTop / (docHeight - winHeight);
+
+      // Viewport height ratio for thumb size
+      let thumbHeight = (winHeight / docHeight) * winHeight;
+      // Enforce min height
+      thumbHeight = Math.max(thumbHeight, 40);
+
+      // Calculate max top position
+      const maxTop = winHeight - thumbHeight;
+      const thumbTop = scrollPercent * maxTop;
+
+      scrollbarThumb.style.height = `${thumbHeight}px`;
+      scrollbarThumb.style.top = `${thumbTop}px`;
+    }
+
+    // Reset timeout to hide
+    if (scrollTimeout) clearTimeout(scrollTimeout);
+
+    // Only hide if not dragging
+    if (!isDragging) {
+      scrollTimeout = window.setTimeout(() => {
+        customScrollbar.classList.add("opacity-0");
+      }, 1000);
+    }
+  }
+
+  // Dragging Logic
+  function startDrag(e: MouseEvent | TouchEvent) {
+    if (!scrollbarThumb || !customScrollbar) return;
+    isDragging = true;
+    customScrollbar.classList.remove("opacity-0");
+    if (scrollTimeout) clearTimeout(scrollTimeout);
+
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    startY = clientY;
+    startScrollTop = window.scrollY || document.documentElement.scrollTop;
+    startThumbTop = parseFloat(scrollbarThumb.style.top || "0");
+
+    // Disable text selection during drag
+    document.body.style.userSelect = "none";
+  }
+
+  function onDrag(e: MouseEvent | TouchEvent) {
+    if (!isDragging || !scrollbarThumb) return;
+
+    // Prevent default touch behavior (scrolling)
+    if (e.cancelable) e.preventDefault();
+
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    const deltaY = clientY - startY;
+
+    const docHeight = document.documentElement.scrollHeight;
+    const winHeight = window.innerHeight;
+    const thumbHeight = parseFloat(scrollbarThumb.style.height || "40");
+    const maxTop = winHeight - thumbHeight;
+
+    // Calculate new clamped thumb position
+    const newThumbTop = Math.min(Math.max(0, startThumbTop + deltaY), maxTop);
+
+    // Update visual position immediately
+    scrollbarThumb.style.top = `${newThumbTop}px`;
+
+    // Calculate scroll percentage from thumb position
+    const scrollPercent = newThumbTop / maxTop;
+
+    // Scroll window to match
+    window.scrollTo({
+      top: scrollPercent * (docHeight - winHeight),
+      behavior: "auto",
+    });
+  }
+
+  function endDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+    document.body.style.userSelect = "";
+
+    // Resume hiding logic
+    updateScrollbar();
+  }
+
+  if (scrollbarThumb) {
+    scrollbarThumb.addEventListener("mousedown", startDrag);
+    scrollbarThumb.addEventListener("touchstart", startDrag, {
+      passive: false,
+    });
+  }
+
+  window.addEventListener("mousemove", onDrag);
+  window.addEventListener("touchmove", onDrag, { passive: false });
+
+  window.addEventListener("mouseup", endDrag);
+  window.addEventListener("touchend", endDrag);
+
+  window.addEventListener("scroll", updateScrollbar, { passive: true });
+  window.addEventListener("resize", updateScrollbar);
+
   // Initialize
   const savedTheme = localStorage.getItem("novel-theme") || "white";
   const savedFont = localStorage.getItem("novel-font") || "sans";
@@ -357,4 +515,6 @@ const { characterCount, readingTime } = calculateStats(novel.body);
   applyTheme(savedTheme);
   applyFont(savedFont);
   applyBreak(savedBreak);
+  // Initial check (in case page is loaded scrolled)
+  updateScrollbar();
 </script>
